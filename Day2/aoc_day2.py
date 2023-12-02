@@ -40,11 +40,6 @@ def main():
     game_total = 0
     for game in data:
         game_possible = True
-        least_colours = {
-            "red": 1,
-            "green": 1,
-            "blue": 1,
-        }
         game_number = int(game.split(":")[0][5:])
         game_subsets = game.split(":")[1].split(";")
         for subset in game_subsets:

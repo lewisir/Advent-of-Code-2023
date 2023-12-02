@@ -60,6 +60,7 @@ def main():
 
     game_total = 0
     for game in data:
+        game_power = 1
         least_colours = {
             "red": 1,
             "green": 1,
@@ -73,9 +74,8 @@ def main():
                 number_of_cubes, colour_of_cubes = result.split()
                 if int(number_of_cubes) > least_colours[colour_of_cubes]:
                     least_colours[colour_of_cubes] = int(number_of_cubes)
-        game_power = (
-            least_colours["red"] * least_colours["blue"] * least_colours["green"]
-        )
+        for x in least_colours.values():
+            game_power *= x
         game_total += game_power
     print(f"Part II - Game Total: {game_total}")
 

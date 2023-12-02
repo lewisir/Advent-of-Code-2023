@@ -17,6 +17,20 @@ if TEST:
 else:
     FILENAME = REAL_INPUT
 
+
+DIGITS_I = [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+]
+
 DIGITS = [
     "0",
     "1",
@@ -71,7 +85,7 @@ def reverse_string(text):
 def find_first_digit(data):
     """return the value of the value of the first digit in the string, return None if no digit is found"""
     for position, char in enumerate(data):
-        if char in DIGITS:
+        if char in DIGITS_I:
             return char
     return None
 
@@ -81,7 +95,7 @@ def find_last_digit(data):
     last_position = -1
     last_digit = "x"
     for position, char in enumerate(data):
-        if char in DIGITS:
+        if char in DIGITS_I:
             last_position = position
             last_digit = char
     if last_position == -1:

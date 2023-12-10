@@ -53,10 +53,8 @@ def main():
     """Main program"""
     data = get_input_data(FILENAME)
     extrapolated_sum = 0
-    sequence_inputs = []
     for line in data:
         sequence = [int(x) for x in line.split()]
-        sequence_inputs.append(sequence)
         extrapolated_sum += next_number(sequence)
 
     print(f"Part I - Extrapolated Sum = {extrapolated_sum}")

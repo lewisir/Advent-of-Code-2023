@@ -49,15 +49,27 @@ def next_number(number_list):
         return number_list[-1] + next_number(diffs)
 
 
+def previous_number(number_list):
+    """from the number list return the previous number in the sequence"""
+    diffs = sequence_diffs(number_list)
+    if diffs.count(0) == len(number_list) - 1:
+        return number_list[0]
+    else:
+        return number_list[0] - previous_number(diffs)
+
+
 def main():
     """Main program"""
     data = get_input_data(FILENAME)
     extrapolated_sum = 0
+    backwards_extrapolated_sum = 0
     for line in data:
         sequence = [int(x) for x in line.split()]
         extrapolated_sum += next_number(sequence)
+        backwards_extrapolated_sum += previous_number(sequence)
 
     print(f"Part I - Extrapolated Sum = {extrapolated_sum}")
+    print(f"Part II - Backwards Extrapolated Sum = {backwards_extrapolated_sum}")
 
 
 if __name__ == "__main__":

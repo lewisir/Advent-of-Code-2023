@@ -104,7 +104,7 @@ def hand_type(hand, joker=False):
         else:
             return "3K"
     if card_counts == [1, 4, 4, 4, 4]:
-        if joker_count == 1:
+        if joker_count > 0:
             return "5K"
         else:
             return "4K"

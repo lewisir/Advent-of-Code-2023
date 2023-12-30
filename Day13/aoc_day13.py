@@ -23,25 +23,51 @@ def main():
     """Main program"""
     data = get_input_data(FILENAME)
     collection_of_patterns = process_input_data(data)
+    located_mirrors = []
     summary_score = 0
     for pattern in collection_of_patterns:
         horizonal_match = search_for_mirror(pattern)
         vertical_match = search_for_mirror(transpose(pattern))
         if horizonal_match is not None:
             summary_score += 100 * horizonal_match
+            located_mirrors.append(('H',horizonal_match))
         elif vertical_match is not None:
             summary_score += vertical_match
+            located_mirrors.append(('V',vertical_match))
     print(f"Part I Summary Score = {summary_score}")
 
+    summary_score = 0
+    secondary_mirrors = []
+    for index, pattern in enumerate(collection_of_patterns):
+        original_mirror_direction, original_mirror_position = located_mirrors[index][0],located_mirrors[index][1]
+        if original_mirror_direction == 'H':
+            horizonal_match = search_for_mirror(pattern,1,int(original_mirror_position))
+            vertical_match = search_for_mirror(transpose(pattern),1)
+        else:
+            horizonal_match = search_for_mirror(pattern,1)
+            vertical_match = search_for_mirror(transpose(pattern),1,int(original_mirror_position))
+        if horizonal_match is not None:
+            summary_score += 100 * horizonal_match
+            secondary_mirrors.append('H'+str(horizonal_match))
+        elif vertical_match is not None:
+            summary_score += vertical_match
+            secondary_mirrors.append('V'+str(horizonal_match))
+    print(f"Part II Summary Score = {summary_score}")
 
-def search_for_mirror(pattern):
-    """given the pattern search for a line of symmetry returning the number of entries before the symmetry line"""
+
+
+def search_for_mirror(pattern, diff_control = 0, skip = -1):
+    """given the pattern search for a line of symmetry returning the number of entries before the symmetry line
+    The element at index skip is missed in the processing of the pattern"""
     for i in range(1, len(pattern)):
-        seq1, seq2 = split_list(pattern, i)
-        seq1.reverse()
-        comparison_result = compare_sequences(seq1, seq2)
-        if comparison_result == i or comparison_result == len(pattern) - i:
-            return i
+        if i == skip:
+            pass
+        else:
+            seq1, seq2 = split_list(pattern, i)
+            seq1.reverse()
+            comparison_result = compare_sequences(seq1, seq2, diff_control)
+            if comparison_result == i or comparison_result == len(pattern) - i:
+                return i
 
 
 def process_input_data(data):
@@ -58,16 +84,21 @@ def process_input_data(data):
     return collection_of_patterns
 
 
-def compare_sequences(seq1, seq2):
-    """In order, compare the items in sequence 1 and sequence 2.
+def compare_sequences(seq1, seq2, diff_control):
+    """In order, compare the items in sequence 1 and sequence 2. diff_control st to zero looks for exact matches
     Return the number of items that match between the two sequences
     A return value of 0 means that the first items are different.
-    A value of 3 means the first 3 items are the same and the 4th is different"""
+    A value of 3 means the first 3 items are the same and the 4th is different
+    If diff_control is set to 1 then it will accept one differnece between the two sequences."""
     length = min(len(seq1), len(seq2))
     count = 0
+    diff_count = 0
     for i in range(0, length):
         if seq1[i] == seq2[i]:
             count += 1
+        elif diff_count == 0  and compare_strings(seq1[i],seq2[i],diff_control):
+            count += 1
+            diff_count += 1
     return count
 
 
@@ -82,6 +113,16 @@ def split_list(sequence, position):
     seq2 = sequence[position:]
     return seq1, seq2
 
+def compare_strings(string1, string2, num_diffs):
+    """compare the two strings and return true if the two strings only differ by num_diffs value"""
+    diff_count = 0
+    for i in range(len(string1)):
+        if string1[i] != string2[i]:
+            diff_count += 1
+    if diff_count == num_diffs:
+        return True
+    else:
+        return False
 
 def get_input_data(filename):
     """function to read in the input data"""

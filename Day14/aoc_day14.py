@@ -21,23 +21,50 @@ else:
 
 def main():
     """Main program"""
-    data = get_input_data(FILENAME)
+    # data = get_input_data(FILENAME)
+    data = ["O....#....", "O.OO#....#"]
     platform = rotate(data)
     platform = tilt(platform)
     print(f"Part I Load = {total_load(platform)}")
 
     # Not figured an efficient way to do Part II yet
+    # figure out the weight after each cycle and store in a list
+    # but this produces a pattern that does not result in a test weight of 64???
     platform = data
-    load_list = []
-    for _ in range(2000):
+    weight_list = []
+    for i in range(100):
         platform = cycle(platform)
-        load_list.append(total_load(platform))
-    print(load_list[-30:])
+        weight_list.append(total_load(platform))
+    print(find_patterns([1, 2, 3, 4, 5, 6, 2, 3, 4, 2, 3, 4, 2, 3, 4]))
+
+
+def find_patterns(number_list):
+    """Given a list of integers locate a repeating pattern"""
+    max_found_len = 0
+    for offset in range(len(number_list) // 2):
+        for pattern_length in range(2, len(number_list) // 3):
+            found_list = find_sub_list(
+                number_list, number_list[offset : offset + pattern_length], offset
+            )
+            if len(found_list) > max_found_len:
+                max_found_len = len(found_list)
+                max_found_sub = found_list
+    return max_found_sub
+
+
+def find_sub_list(main_list, sub_list, start=0):
+    """Find the sub_list in the main_list and return it's starting index position"""
+    found_list = []
+    for s in sub_list:
+        search_result = main_list.index(s, start)
+        if search_result >= 0:
+            found_list.append(search_result)
+    return found_list
 
 
 def cycle(platform, number=1):
-    """tilt the platform through all four directions the given number of times"""
-    for _ in range(number * 4):
+    """tilt the platform through all four directions"""
+    for i in range(number * 4):
         platform = rotate(platform)
         platform = tilt(platform)
     return platform

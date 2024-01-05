@@ -7,7 +7,7 @@ https://adventofcode.com/2023/day/14
 from time import perf_counter
 from pprint import pprint
 
-TEST = True
+TEST = False
 
 DAY = "14"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -21,52 +21,57 @@ else:
 
 def main():
     """Main program"""
-    # data = get_input_data(FILENAME)
-    data = ["O....#....", "O.OO#....#"]
+    data = get_input_data(FILENAME)
     platform = rotate(data)
     platform = tilt(platform)
     print(f"Part I Load = {total_load(platform)}")
 
     # Not figured an efficient way to do Part II yet
     # figure out the weight after each cycle and store in a list
-    # but this produces a pattern that does not result in a test weight of 64???
     platform = data
     weight_list = []
-    for i in range(100):
+    platform = rotate(platform)
+    for _ in range(1000):
         platform = cycle(platform)
         weight_list.append(total_load(platform))
-    print(find_patterns([1, 2, 3, 4, 5, 6, 2, 3, 4, 2, 3, 4, 2, 3, 4]))
+    search_result = search_pattern(weight_list)
+    print(search_result)
+    print(
+        f"Part II - {calculate_value(1000000000,search_result[0]+1,search_result[1])}"
+    )
 
 
-def find_patterns(number_list):
-    """Given a list of integers locate a repeating pattern"""
-    max_found_len = 0
-    for offset in range(len(number_list) // 2):
-        for pattern_length in range(2, len(number_list) // 3):
-            found_list = find_sub_list(
-                number_list, number_list[offset : offset + pattern_length], offset
-            )
-            if len(found_list) > max_found_len:
-                max_found_len = len(found_list)
-                max_found_sub = found_list
-    return max_found_sub
+def calculate_value(index, offset, pattern):
+    """return the value at the index if the pattern were repeated after the offset"""
+    return pattern[(index - offset) % len(pattern)]
 
 
-def find_sub_list(main_list, sub_list, start=0):
-    """Find the sub_list in the main_list and return it's starting index position"""
-    found_list = []
-    for s in sub_list:
-        search_result = main_list.index(s, start)
-        if search_result >= 0:
-            found_list.append(search_result)
-    return found_list
+def search_pattern(number_list):
+    """Search the number_list for a repeating pattern. Pattern length must be at least 3 and must repeat at least 3 times
+    The offset may be up to 1/4 of the length of the number_list
+    Return the offset and the repeating pattern if found. Otherwise return False"""
+    for offset in range(len(number_list) // 4):
+        for pattern_length in range(2, ((len(number_list) - offset) // 3) + 1):
+            if check_sub_list(
+                number_list[offset:], number_list[offset : offset + pattern_length]
+            ):
+                return (offset, number_list[offset : offset + pattern_length])
+    return False
 
 
-def cycle(platform, number=1):
+def check_sub_list(main_list, sub_list):
+    """Return true if the main list is a multiple of the sub list"""
+    if sub_list * (len(main_list) // len(sub_list)) == main_list:
+        return True
+    else:
+        return False
+
+
+def cycle(platform):
     """tilt the platform through all four directions"""
-    for i in range(number * 4):
-        platform = rotate(platform)
+    for i in range(4):
         platform = tilt(platform)
+        platform = rotate(platform)
     return platform
 
 

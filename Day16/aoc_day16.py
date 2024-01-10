@@ -58,6 +58,40 @@ def main():
     print(
         f"Part 1 - number of energized tiles = {len(filter_beam_path(energized_tiles))}"
     )
+    max_energized_tiles = 0
+    for y in range(len(data)):
+        for x in range(len(data[0])):
+            if y == 0:
+                direction = "D"
+            elif y == len(data) - 1:
+                direction = "U"
+            if x == 0:
+                direction = "R"
+            elif x == len(data[0]) - 1:
+                direction = "L"
+            # But need to also run extra beams in the corners (see below the extra steps)
+            energized_tiles = len(
+                filter_beam_path(beam_trace(data, direction, (y, x), set(())))
+            )
+            if energized_tiles > max_energized_tiles:
+                max_energized_tiles = energized_tiles
+    energized_tiles = len(filter_beam_path(beam_trace(data, "D", (0, 0), set(()))))
+    if energized_tiles > max_energized_tiles:
+        max_energized_tiles = energized_tiles
+    energized_tiles = len(
+        filter_beam_path(beam_trace(data, "D", (0, len(data) - 1), set(())))
+    )
+    if energized_tiles > max_energized_tiles:
+        max_energized_tiles = energized_tiles
+    energized_tiles = len(filter_beam_path(beam_trace(data, "U", (0, 0), set(()))))
+    if energized_tiles > max_energized_tiles:
+        max_energized_tiles = energized_tiles
+    energized_tiles = len(
+        filter_beam_path(beam_trace(data, "U", (0, len(data) - 1), set(())))
+    )
+    if energized_tiles > max_energized_tiles:
+        max_energized_tiles = energized_tiles
+    print(f"Part II - Max Energized Tiles = {max_energized_tiles}")
 
 
 def beam_trace(layout, direction, location, beam_path):

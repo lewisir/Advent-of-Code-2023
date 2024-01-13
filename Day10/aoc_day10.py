@@ -19,7 +19,6 @@ if TEST:
 else:
     FILENAME = REAL_INPUT
 
-DIRECTIONS = ["N", "S", "E", "W"]
 VALID_MOVES = {
     "N": ("|", "7", "F"),
     "S": ("|", "L", "J"),
@@ -55,57 +54,61 @@ def main():
     """Main program"""
     data = get_input_data(FILENAME)
     start_position = find_start(data)
-    move_count = 0
-    direction, y, x = find_valid_move(data, start_position)
-    symbol = data[y][x]
-    pipe_path = set(())
-    pipe_path.add((y, x))
-    left_points = set(())
-    right_points = set(())
-    right_turns = 0
-    while symbol != "S":
-        lhs = ADJ_POINTS[direction]["LHS"]
-        rhs = ADJ_POINTS[direction]["RHS"]
-        if test_within_map(data, (y + lhs[0], x + lhs[1])):
-            left_points.add((y + lhs[0], x + lhs[1]))
-        if test_within_map(data, (y + rhs[0], x + rhs[1])):
-            right_points.add((y + rhs[0], x + rhs[1]))
-        old_direction = direction
-        direction, change_y, change_x = PIPES[symbol][direction]
-        y += change_y
-        x += change_x
-        pipe_path.add((y, x))
-        right_turns += TURNS[old_direction][direction]
-        symbol = data[y][x]
-        move_count += 1
-
-    print(f"Part 1 {(move_count+1)/2}")
-    left_points.difference_update(pipe_path)
-    right_points.difference_update(pipe_path)
+    pipe_points, inside_adj_points = trace_pipe(data, start_position)
+    print(f"Part I - Pipe's furthest point {len(pipe_points)//2}")
 
     inside_points = set(())
-    if right_turns > 0:
-        start_points = right_points
-        alt_start_pts = left_points
+    for point in inside_adj_points:
+        inside_points = inside_points.union(map_out_points(data, pipe_points, point))
+    print(f"Part II - Tiles within the pipe {len(inside_points)}")
+
+    # Part II 397 is too low and 408 is too high
+
+
+def trace_pipe(pipe_map, start):
+    """From the start position in the pipe map, trace the path of the pipe retrning the points of the pipe and the inside adjacent points"""
+    pipe_points = set(())
+    lhs_points = set(())
+    rhs_points = set(())
+    right_turn_count = 0
+    direction, y, x = find_valid_move(pipe_map, start)
+    symbol = pipe_map[y][x]
+    while symbol != "S":
+        pipe_points.add((y, x))
+        lhs = ADJ_POINTS[direction]["LHS"]
+        rhs = ADJ_POINTS[direction]["RHS"]
+        lhs_points.add((y + lhs[0], x + lhs[1]))
+        rhs_points.add((y + rhs[0], x + rhs[1]))
+        previous_direction = direction
+        direction, change_y, change_x = PIPES[symbol][direction]
+        right_turn_count += TURNS[previous_direction][direction]
+        y += change_y
+        x += change_x
+        symbol = pipe_map[y][x]
+    # add in the starting position to the pipe points
+    pipe_points.add((y, x))
+    lhs = ADJ_POINTS[direction]["LHS"]
+    rhs = ADJ_POINTS[direction]["RHS"]
+    lhs_points.add((y + lhs[0], x + lhs[1]))
+    rhs_points.add((y + rhs[0], x + rhs[1]))
+    if right_turn_count > 0:
+        inside_adj_points = rhs_points
     else:
-        start_points = left_points
-        alt_start_pts = right_points
-    for point in start_points:
-        inside_points = inside_points.union(map_out_points(data, pipe_path, point))
+        inside_adj_points = lhs_points
+    inside_adj_points.difference_update(pipe_points)
+    inside_adj_points = remove_out_of_boundary(pipe_map, inside_adj_points)
+    return pipe_points, inside_adj_points
 
-    print(f"Part II Inside tiles = {len(inside_points)}")
-    # first run answer 397 is too low
 
-    # second answer of 408 is too high (calculated by using the outside points below)
-    # outside_points = set(())
-    # for point in alt_start_pts:
-    #    outside_points = outside_points.union(map_out_points(data, pipe_path, point))
-    # print(f"Total Points = {len(data)*len(data[0])}")
-    # print(f"Pipe Points = {len(pipe_path)}")
-    # print(f"Outside Points = {len(outside_points)}")
-    # print(
-    #    f"Alt calc of inside points = {len(data)*len(data[0])-len(pipe_path)-len(outside_points)}"
-    # )
+def remove_out_of_boundary(pipe_map, points):
+    """From the set of points remove any tht lie outside the pipe_map boundary"""
+    exterior_points = set(())
+    for point in points:
+        y, x = point
+        if y < 0 or y >= len(pipe_map) or x < 0 or x >= len(pipe_map[0]):
+            exterior_points.add((y, x))
+    resulting_points = points.difference(exterior_points)
+    return resulting_points
 
 
 def get_input_data(filename):

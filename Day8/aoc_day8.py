@@ -56,13 +56,25 @@ def find_lowest_position(number_list):
     return result_position
 
 
-def lcm(integers):
-    """given a list of integers return the least common multiple using the algorithm defined at https://en.wikipedia.org/wiki/Least_common_multiple"""
-    results = integers.copy()
-    while not test_equality(results):
-        position = find_lowest_position(results)
-        results[position] += integers[position]
-    return results[0]
+def gcf(a, b):
+    """Return the Greatest Common Factor of the two integers a and b"""
+    if b == 0:
+        return a
+    else:
+        return gcf(b, a % b)
+
+
+def lcm(a, b):
+    """Return the Lowest Common Multiple of the two integers a and b"""
+    return a * b // gcf(a, b)
+
+
+def lowest_multiple(integers):
+    """Return the lowest common multiple for the set of integers"""
+    lowest = 1
+    for integer in integers:
+        lowest = lcm(lowest, integer)
+    return lowest
 
 
 def main():
@@ -77,7 +89,7 @@ def main():
             network[node] = (element1, element2)
         elif index == 0:
             instructions = line
-    """location = "AAA"
+    location = "AAA"
     i, steps = 0, 0
     while location != "ZZZ":
         direction = instructions[i]
@@ -90,7 +102,7 @@ def main():
         i += 1
         if i == len(instructions):
             i = 0
-    print(f"Part I steps = {steps}")"""
+    print(f"Part I steps = {steps}")
 
     # Part two
     locations = []
@@ -115,9 +127,7 @@ def main():
         result_steps.append(steps)
         i, steps = 0, 0
 
-    # Part I is OK, but part II takes a long time - about 2 hours!
-
-    print(f"Part II steps = {lcm(result_steps)}")
+    print(f"Part II steps = {lowest_multiple(result_steps)}")
 
 
 if __name__ == "__main__":

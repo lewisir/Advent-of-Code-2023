@@ -8,7 +8,7 @@ import math
 from time import perf_counter
 import pprint
 
-TEST = False
+TEST = True
 
 DAY = "10"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -49,6 +49,13 @@ TURNS = {
     "W": {"W": 0, "N": +1, "S": -1},
 }
 
+TURN_FWD_ADJ_POINTS = {
+    "N": (-1, 0),
+    "S": (+1, 0),
+    "E": (0, +1),
+    "W": (-1, 0),
+}
+
 
 def main():
     """Main program"""
@@ -61,8 +68,8 @@ def main():
     for point in inside_adj_points:
         inside_points = inside_points.union(map_out_points(data, pipe_points, point))
     print(f"Part II - Tiles within the pipe {len(inside_points)}")
-
     # Part II 397 is too low and 408 is too high
+    # even after adding the extra turn points !!! So where is it going wrong? Unless I have it wrong...
 
 
 def trace_pipe(pipe_map, start):
@@ -82,6 +89,20 @@ def trace_pipe(pipe_map, start):
         previous_direction = direction
         direction, change_y, change_x = PIPES[symbol][direction]
         right_turn_count += TURNS[previous_direction][direction]
+        # if right_turn_count > 0:
+        #    lhs_points.add(
+        #        (
+        #            y + TURN_FWD_ADJ_POINTS[direction][0],
+        #            x + TURN_FWD_ADJ_POINTS[direction][1],
+        #        )
+        #    )
+        # elif right_turn_count < 0:
+        #    rhs_points.add(
+        #        (
+        #            y + TURN_FWD_ADJ_POINTS[direction][0],
+        #            x + TURN_FWD_ADJ_POINTS[direction][1],
+        #        )
+        #    )
         y += change_y
         x += change_x
         symbol = pipe_map[y][x]

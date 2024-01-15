@@ -35,8 +35,6 @@ PIPES = {
     "F": {"N": ("E", 0, +1), "W": ("S", +1, 0)},
 }
 
-TURN_PIPE = ("L", "J", "7", "F")
-
 ADJ_POINTS = {
     "N": {"LHS": (0, -1), "RHS": (0, +1)},
     "S": {"LHS": (0, +1), "RHS": (0, -1)},
@@ -82,6 +80,7 @@ def trace_pipe(pipe_map, start):
     rhs_points = set(())
     right_turn_count = 0
     direction, y, x = find_valid_move(pipe_map, start)
+    original_direction = direction
     symbol = pipe_map[y][x]
     while symbol != "S":
         pipe_points.add((y, x))
@@ -92,14 +91,14 @@ def trace_pipe(pipe_map, start):
         previous_direction = direction
         direction, change_y, change_x = PIPES[symbol][direction]
         right_turn_count += TURNS[previous_direction][direction]
-        if symbol in TURN_PIPE and right_turn_count > 0:
+        if TURNS[previous_direction][direction] > 0:
             lhs_points.add(
                 (
                     y + TURN_FWD_ADJ_POINTS[direction][0],
                     x + TURN_FWD_ADJ_POINTS[direction][1],
                 )
             )
-        elif symbol in TURN_PIPE and right_turn_count < 0:
+        elif TURNS[previous_direction][direction] < 0:
             rhs_points.add(
                 (
                     y + TURN_FWD_ADJ_POINTS[direction][0],
@@ -115,6 +114,20 @@ def trace_pipe(pipe_map, start):
     rhs = ADJ_POINTS[direction]["RHS"]
     lhs_points.add((y + lhs[0], x + lhs[1]))
     rhs_points.add((y + rhs[0], x + rhs[1]))
+    if TURNS[original_direction][direction] > 0:
+        lhs_points.add(
+            (
+                y + TURN_FWD_ADJ_POINTS[direction][0],
+                x + TURN_FWD_ADJ_POINTS[direction][1],
+            )
+        )
+    elif TURNS[original_direction][direction] < 0:
+        rhs_points.add(
+            (
+                y + TURN_FWD_ADJ_POINTS[direction][0],
+                x + TURN_FWD_ADJ_POINTS[direction][1],
+            )
+        )
     if right_turn_count > 0:
         inside_adj_points = rhs_points
     else:

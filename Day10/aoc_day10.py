@@ -35,6 +35,8 @@ PIPES = {
     "F": {"N": ("E", 0, +1), "W": ("S", +1, 0)},
 }
 
+TURN_PIPE = ("L", "J", "7", "F")
+
 ADJ_POINTS = {
     "N": {"LHS": (0, -1), "RHS": (0, +1)},
     "S": {"LHS": (0, +1), "RHS": (0, -1)},
@@ -53,7 +55,7 @@ TURN_FWD_ADJ_POINTS = {
     "N": (-1, 0),
     "S": (+1, 0),
     "E": (0, +1),
-    "W": (-1, 0),
+    "W": (0, -1),
 }
 
 
@@ -70,7 +72,7 @@ def main():
     print(f"Part II - Tiles within the pipe {len(inside_points)}")
     # Part II 397 is too low and 408 is too high
     # even after adding the extra turn points !!! So where is it going wrong? Unless I have it wrong...
-    # My test proves the extra TURN_FWD_ADJ_POINTS does work, but this does change my result for me reald data
+    # My test proves the extra TURN_FWD_ADJ_POINTS does work, but this does not change my result for my real data
 
 
 def trace_pipe(pipe_map, start):
@@ -90,14 +92,14 @@ def trace_pipe(pipe_map, start):
         previous_direction = direction
         direction, change_y, change_x = PIPES[symbol][direction]
         right_turn_count += TURNS[previous_direction][direction]
-        if right_turn_count > 0:
+        if symbol in TURN_PIPE and right_turn_count > 0:
             lhs_points.add(
                 (
                     y + TURN_FWD_ADJ_POINTS[direction][0],
                     x + TURN_FWD_ADJ_POINTS[direction][1],
                 )
             )
-        elif right_turn_count < 0:
+        elif symbol in TURN_PIPE and right_turn_count < 0:
             rhs_points.add(
                 (
                     y + TURN_FWD_ADJ_POINTS[direction][0],

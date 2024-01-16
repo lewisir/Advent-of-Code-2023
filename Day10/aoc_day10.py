@@ -61,7 +61,9 @@ def main():
     """Main program"""
     data = get_input_data(FILENAME)
     start_position = find_start(data)
-    pipe_points, inside_adj_points = trace_pipe(data, start_position)
+    pipe_points, inside_adj_points, outside_adj_points = trace_pipe(
+        data, start_position
+    )
     print(f"Part I - Pipe's furthest point {len(pipe_points)//2}")
 
     inside_points = set(())
@@ -71,6 +73,22 @@ def main():
     # Part II 397 is too low and 408 is too high
     # even after adding the extra turn points !!! So where is it going wrong? Unless I have it wrong...
     # My test proves the extra TURN_FWD_ADJ_POINTS does work, but this does not change my result for my real data
+    # The following is use to debug where I am missing points
+    # could improve performance by removing adjacent points from the list that have already been used as the source of the search ???
+    """
+    outside_points = set(())
+    for point in outside_adj_points:
+        outside_points = outside_points.union(map_out_points(data, pipe_points, point))
+
+    output_map = display_pipe(data, pipe_points, inside_points, outside_points)
+    missing_points = set(())
+    for y, row in enumerate(output_map):
+        for x, char in enumerate(row):
+            if char == ".":
+                missing_points.add((y, x))
+    print(missing_points)
+    """
+    # missing {(32, 31), (43, 85), (71, 119), (54, 48), (119, 89), (31, 103), (58, 126), (108, 121), (60, 29), (102, 102), (79, 95)}
 
 
 def trace_pipe(pipe_map, start):
@@ -130,15 +148,19 @@ def trace_pipe(pipe_map, start):
         )
     if right_turn_count > 0:
         inside_adj_points = rhs_points
+        outside_adj_points = lhs_points
     else:
         inside_adj_points = lhs_points
+        outside_adj_points = rhs_points
     inside_adj_points.difference_update(pipe_points)
+    outside_adj_points.difference_update(pipe_points)
     inside_adj_points = remove_out_of_boundary(pipe_map, inside_adj_points)
-    return pipe_points, inside_adj_points
+    outside_adj_points = remove_out_of_boundary(pipe_map, outside_adj_points)
+    return pipe_points, inside_adj_points, outside_adj_points
 
 
 def remove_out_of_boundary(pipe_map, points):
-    """From the set of points remove any tht lie outside the pipe_map boundary"""
+    """From the set of points remove any that lie outside the pipe_map boundary"""
     exterior_points = set(())
     for point in points:
         y, x = point
@@ -217,6 +239,27 @@ def find_adjacent_points(map, point):
     if test_within_map(map, (y, x + 1)):
         output_points.add((y, x + 1))
     return output_points
+
+
+def display_pipe(pipe_map, pipe_points, inside_points, outside_points):
+    """construct and display the map with the pipe (#), inside (x) and outside (O) points marked"""
+    max_y = len(pipe_map)
+    max_x = len(pipe_map[0])
+    # create a new map
+    new_map = [["." for i in range(max_x)] for j in range(max_y)]
+    for point in pipe_points:
+        y, x = point
+        new_map[y][x] = pipe_map[y][x]
+    for point in inside_points:
+        y, x = point
+        new_map[y][x] = "x"
+    for point in outside_points:
+        y, x = point
+        new_map[y][x] = "O"
+    output_map = ["".join(x) for x in new_map]
+    for line in output_map:
+        print(line)
+    return output_map
 
 
 if __name__ == "__main__":

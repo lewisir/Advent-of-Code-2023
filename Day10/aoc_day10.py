@@ -67,18 +67,24 @@ def main():
     print(f"Part I - Pipe's furthest point {len(pipe_points)//2}")
 
     inside_points = set(())
-    for point in inside_adj_points:
+    # for point in inside_adj_points:
+    #    inside_points = inside_points.union(map_out_points(data, pipe_points, point))
+    while inside_adj_points:
+        point = inside_adj_points.pop()
         inside_points = inside_points.union(map_out_points(data, pipe_points, point))
+        inside_adj_points.difference_update(inside_points)
+
     print(f"Part II - Tiles within the pipe {len(inside_points)}")
     # Part II 397 is too low and 408 is too high
     # even after adding the extra turn points !!! So where is it going wrong? Unless I have it wrong...
     # My test proves the extra TURN_FWD_ADJ_POINTS does work, but this does not change my result for my real data
-    # The following is use to debug where I am missing points
-    # could improve performance by removing adjacent points from the list that have already been used as the source of the search ???
+    # The following is used to debug where I am missing points
     """
     outside_points = set(())
-    for point in outside_adj_points:
+    while outside_adj_points:
+        point = outside_adj_points.pop()
         outside_points = outside_points.union(map_out_points(data, pipe_points, point))
+        outside_adj_points.difference_update(outside_points)
 
     output_map = display_pipe(data, pipe_points, inside_points, outside_points)
     missing_points = set(())

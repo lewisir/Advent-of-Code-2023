@@ -68,14 +68,14 @@ FJ.FJ
 LJL-J
 
 # This map was built from the real data to emulate a problem. This map is explored clockwise and has one inner tile
-.FJFJ
+.F7F7
 .|LJ|
 FJ.FJ
 |F7|.
 SJLJ.
 
-# This is the same arrangement but explored anti-clockwise and has one inner tile
-.FJFJ
+# This is the same arrangement but explored anti-clockwise and has one inner tile (this one works for my algorithm)
+.F7F7
 .|LJ|
 SJ.FJ
 |F7|.

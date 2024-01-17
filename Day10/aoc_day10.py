@@ -61,24 +61,18 @@ def main():
     """Main program"""
     data = get_input_data(FILENAME)
     start_position = find_start(data)
-    pipe_points, inside_adj_points, outside_adj_points = trace_pipe(
-        data, start_position
-    )
+    pipe_points, inside_adj_points = trace_pipe(data, start_position)
     print(f"Part I - Pipe's furthest point {len(pipe_points)//2}")
 
     inside_points = set(())
-    # for point in inside_adj_points:
-    #    inside_points = inside_points.union(map_out_points(data, pipe_points, point))
     while inside_adj_points:
         point = inside_adj_points.pop()
         inside_points = inside_points.union(map_out_points(data, pipe_points, point))
         inside_adj_points.difference_update(inside_points)
 
     print(f"Part II - Tiles within the pipe {len(inside_points)}")
-    # Part II 397 is too low and 408 is too high
-    # even after adding the extra turn points !!! So where is it going wrong? Unless I have it wrong...
-    # My test proves the extra TURN_FWD_ADJ_POINTS does work, but this does not change my result for my real data
-    # The following is used to debug where I am missing points
+
+    # The following was used to debug and can display the pipe with the inner and outer points and find any points that are not classified
     """
     outside_points = set(())
     while outside_adj_points:
@@ -94,9 +88,9 @@ def main():
                 missing_points.add((y, x))
     print(missing_points)
     """
-    # missing {(32, 31), (43, 85), (71, 119), (54, 48), (119, 89), (31, 103), (58, 126), (108, 121), (60, 29), (102, 102), (79, 95)}
 
 
+# Really should refactor this function!
 def trace_pipe(pipe_map, start):
     """From the start position in the pipe map, trace the path of the pipe retrning the points of the pipe and the inside adjacent points"""
     pipe_points = set(())
@@ -118,15 +112,15 @@ def trace_pipe(pipe_map, start):
         if TURNS[previous_direction][direction] > 0:
             lhs_points.add(
                 (
-                    y + TURN_FWD_ADJ_POINTS[direction][0],
-                    x + TURN_FWD_ADJ_POINTS[direction][1],
+                    y + TURN_FWD_ADJ_POINTS[previous_direction][0],
+                    x + TURN_FWD_ADJ_POINTS[previous_direction][1],
                 )
             )
         elif TURNS[previous_direction][direction] < 0:
             rhs_points.add(
                 (
-                    y + TURN_FWD_ADJ_POINTS[direction][0],
-                    x + TURN_FWD_ADJ_POINTS[direction][1],
+                    y + TURN_FWD_ADJ_POINTS[previous_direction][0],
+                    x + TURN_FWD_ADJ_POINTS[previous_direction][1],
                 )
             )
         y += change_y
@@ -162,7 +156,7 @@ def trace_pipe(pipe_map, start):
     outside_adj_points.difference_update(pipe_points)
     inside_adj_points = remove_out_of_boundary(pipe_map, inside_adj_points)
     outside_adj_points = remove_out_of_boundary(pipe_map, outside_adj_points)
-    return pipe_points, inside_adj_points, outside_adj_points
+    return pipe_points, inside_adj_points
 
 
 def remove_out_of_boundary(pipe_map, points):

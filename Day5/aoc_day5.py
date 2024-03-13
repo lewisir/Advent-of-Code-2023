@@ -128,8 +128,10 @@ def main():
         seed_ranges.append((seeds[i - 1], seeds[i]))
 
     next_ranges = seed_ranges.copy()
+    pprint.pprint(next_ranges)
 
     for mapping in maps:
+        # pprint.pprint(mapping)
         new_ranges = next_ranges.copy()
         next_ranges = []
         for map_info in mapping:
@@ -140,10 +142,11 @@ def main():
                 new_ranges.extend(unmapped)
                 next_ranges.extend(new_mapped)
         next_ranges.extend(new_ranges)
+        # pprint.pprint(next_ranges)
 
     minimum = math.inf
 
-    for number_range in new_ranges:
+    for number_range in next_ranges:
         if number_range[0] < minimum:
             minimum = number_range[0]
 

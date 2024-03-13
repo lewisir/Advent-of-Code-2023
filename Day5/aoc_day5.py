@@ -6,6 +6,8 @@ https://adventofcode.com/2023/day/5
 
 from time import perf_counter
 import pprint
+import sys
+import math
 
 TEST = True
 
@@ -124,17 +126,42 @@ def main():
     mapped_seeds.sort()
     print(f"Part I lowset location number - {mapped_seeds[0]}")
 
-    pprint.pprint(maps[0][0])
+    # pprint.pprint(maps[0][0])
 
     seed_ranges = []
     for i in range(1, len(seeds), 2):
         seed_ranges.append((seeds[i - 1], seeds[i]))
 
-    print(f"Seed Ranges - {seed_ranges}")
+    # print(f"Seed Ranges - {seed_ranges}")
 
-    pprint.pprint(process_seed_ranges(seed_ranges,maps[0][0]))
+    # pprint.pprint(process_seed_ranges(seed_ranges,maps[0][0]))
     
+    new_ranges = seed_ranges.copy()
 
+    count = 0
+
+    for mapping in maps:
+        for map_info in mapping:
+            input_ranges = new_ranges.copy()
+            new_ranges = []
+            print(f"map_info {map_info}")
+            # print(f"input_ranges {input_ranges}")
+            for seed_range in input_ranges:
+                count += 1
+                if count > 100:
+                    sys.exit()
+                unmapped, new_mapped = split_range(seed_range,map_info)
+                new_ranges.extend(unmapped)
+                new_ranges.extend(new_mapped)
+            print(f"new_ranges {new_ranges}")
+
+    minimum = math.inf
+
+    for number_range in new_ranges:
+        if number_range[0] < minimum:
+            minimum = number_range[0]
+
+    print(f"Part II lowest location number - {minimum}")
 
 if __name__ == "__main__":
     start_time = perf_counter()

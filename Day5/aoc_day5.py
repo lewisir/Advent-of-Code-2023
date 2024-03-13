@@ -9,7 +9,7 @@ import pprint
 import sys
 import math
 
-TEST = True
+TEST = False
 
 DAY = "5"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -32,9 +32,7 @@ def get_input_data(filename):
 
 def map_seed_number(seed, maps):
     mapped_number = seed
-    # print(f"new seed :{seed}")
     for map in maps:
-        # print("new-map")
         for number_map in map:
             if (
                 mapped_number >= number_map["src_start"]
@@ -42,7 +40,6 @@ def map_seed_number(seed, maps):
             ):
                 mapped_number += number_map["dst_start"] - number_map["src_start"]
                 break
-            # print(mapped_number)
     return mapped_number
 
 
@@ -126,34 +123,23 @@ def main():
     mapped_seeds.sort()
     print(f"Part I lowset location number - {mapped_seeds[0]}")
 
-    # pprint.pprint(maps[0][0])
-
     seed_ranges = []
     for i in range(1, len(seeds), 2):
         seed_ranges.append((seeds[i - 1], seeds[i]))
 
-    # print(f"Seed Ranges - {seed_ranges}")
-
-    # pprint.pprint(process_seed_ranges(seed_ranges,maps[0][0]))
-    
-    new_ranges = seed_ranges.copy()
-
-    count = 0
+    next_ranges = seed_ranges.copy()
 
     for mapping in maps:
+        new_ranges = next_ranges.copy()
+        next_ranges = []
         for map_info in mapping:
             input_ranges = new_ranges.copy()
             new_ranges = []
-            print(f"map_info {map_info}")
-            # print(f"input_ranges {input_ranges}")
             for seed_range in input_ranges:
-                count += 1
-                if count > 100:
-                    sys.exit()
                 unmapped, new_mapped = split_range(seed_range,map_info)
                 new_ranges.extend(unmapped)
-                new_ranges.extend(new_mapped)
-            print(f"new_ranges {new_ranges}")
+                next_ranges.extend(new_mapped)
+        next_ranges.extend(new_ranges)
 
     minimum = math.inf
 

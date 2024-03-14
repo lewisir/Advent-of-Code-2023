@@ -9,7 +9,7 @@ import pprint
 import sys
 import math
 
-TEST = True
+TEST = False
 
 DAY = "5"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -86,16 +86,6 @@ def split_range(input_info, map_info):
         # None of the input is mapped
         return [(in_start, in_range)],[]
 
-def process_seed_ranges(seed_ranges, map_info):
-    """process the serires of seed ranges with the map info returning the unchanged and changed ranges"""
-    original_ranges, updated_ranges =[],[]
-    for seed_range in seed_ranges:
-        unchanged_ranges, new_ranges = split_range(seed_range,map_info)
-        original_ranges.extend(unchanged_ranges)
-        updated_ranges.extend(new_ranges)
-        print(f"seed range is {seed_range}\noriginal is now {original_ranges}\nupdated is now {updated_ranges}")
-    return original_ranges,updated_ranges
-
 
 def main():
     """Main program"""
@@ -128,7 +118,6 @@ def main():
         seed_ranges.append((seeds[i - 1], seeds[i]))
 
     next_ranges = seed_ranges.copy()
-    pprint.pprint(next_ranges)
 
     for mapping in maps:
         # pprint.pprint(mapping)

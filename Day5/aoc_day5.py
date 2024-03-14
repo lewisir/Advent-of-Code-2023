@@ -9,7 +9,7 @@ import pprint
 import sys
 import math
 
-TEST = False
+TEST = True
 
 DAY = "5"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -45,7 +45,7 @@ def map_seed_number(seed, maps):
 
 def split_range(input_info, map_info):
     """Return two lists. One containing the part(s) of the input range that are not changed
-      and the other containing the part of the input rage that are changed
+      and the other containing the part of the input range that are changed
     Return empty lists if there is no transformation"""
     in_start, in_range = input_info
     in_end = in_start + in_range - 1
@@ -64,8 +64,8 @@ def split_range(input_info, map_info):
         return [(in_unmapped_start, in_unmapped_range)],[(out_start, out_range)]
     elif (
         map_info["src_start"] > in_start
-        and map_info["src_start"] <= in_end
-        and map_end > in_end
+        and map_info["src_start"] < in_end
+        and map_end >= in_end
     ):
         # The end of the input is mapped
         out_start = map_info["dst_start"]

@@ -29,9 +29,9 @@ def main():
         damaged_springs = [int(x) for x in damaged_springs]
         total_damaged_springs = sum(damaged_springs)
         unknown_spring_locations = find_char_positions(spring_data, "?")
-        unknown_springs = len(find_char_positions(spring_data, "#"))
+        known_damaged_springs = len(find_char_positions(spring_data, "#"))
         possible_damaged_springs = generate_combinations(
-            unknown_spring_locations, total_damaged_springs - unknown_springs
+            unknown_spring_locations, total_damaged_springs - known_damaged_springs
         )
         for possible in possible_damaged_springs:
             test_data = create_spring_data(spring_data, possible)
@@ -39,6 +39,7 @@ def main():
                 alternative += 1
         result_list.append(alternative)
     print(f"Part 1 - sum of alternatives = {sum(result_list)}")
+    # Part I works but is slow (about 5 seconds)
 
 
 def generate_combinations(arr, r):
@@ -68,7 +69,7 @@ def find_char_positions(input_string, char):
 
 
 def get_damaged_springs(input_list):
-    """given a input containing #'s separated by .'s, return a list of the number of contiguis #'s"""
+    """given a input containing #'s separated by .'s, return a list containing the numbers of contiguous #'s"""
     hash_count = 0
     output_list = []
     for c in input_list:
@@ -83,6 +84,7 @@ def get_damaged_springs(input_list):
 
 
 def create_spring_data(input_string, positions):
+    """Create an output string from the input string replacing '?' with either '.' or '#' as dictated by the positions"""
     output_string = ""
     for i, c in enumerate(input_string):
         if c == ".":

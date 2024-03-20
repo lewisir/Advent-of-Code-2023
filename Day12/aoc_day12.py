@@ -41,6 +41,8 @@ def main():
     print(f"Part 1 - sum of alternatives = {sum(result_list)}")
     # Part I works but is slow (about 5 seconds)
 
+    # New approach is to work through the string section by section (delimited by groups of '#') and check as we go whether we're producing a string that will match the damaged spring summary data 
+
 
 def generate_combinations(arr, r):
     data = [0] * r
@@ -48,6 +50,7 @@ def generate_combinations(arr, r):
 
 
 def combination_util(arr, data, start, end, index, r, combinations):
+    """Grabbed this from Internet to produce all the combinations of length 'r' from the list 'arr'"""
     if index == r:
         combinations.append(data.copy())
         return combinations

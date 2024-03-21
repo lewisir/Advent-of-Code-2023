@@ -22,7 +22,7 @@ def main():
     """Main program"""
     data = get_input_data(FILENAME)
     result_list = []
-    for line in data:
+    """for line in data:
         alternative = 0
         spring_data, damaged_springs = line.split(" ")
         damaged_springs = damaged_springs.split(",")
@@ -40,8 +40,55 @@ def main():
         result_list.append(alternative)
     print(f"Part 1 - sum of alternatives = {sum(result_list)}")
     # Part I works but is slow (about 5 seconds)
+    """
 
     # New approach is to work through the string section by section (delimited by groups of '#') and check as we go whether we're producing a string that will match the damaged spring summary data 
+
+
+def extract_next_section(spring_string, n):
+    """
+    Starting at index position n, extract the next section of the spring_string up to include the next contiguous block of '?'
+    unless the end of the string is reached in which case return the whole string
+    """
+    output_string = spring_string[:n]
+    found_unknown = False
+    for i in range(n,len(spring_string)):
+        char = spring_string[i]
+        output_string += char
+        if char == '?':
+            found_unknown = True
+        elif char == '.' and found_unknown == True:
+            return output_string
+    return output_string
+
+
+
+def calculate_number_record(spring_string):
+    """Calculate the number of damaged springs in each contiguous group and return the list of the numbers"""
+    count = 0
+    number_record = []
+    for c in spring_string:
+        if c == '#':
+            count +=1
+        elif c == '.' and count > 0:
+            number_record.append(count)
+            count = 0
+    if count > 0:
+        number_record.append(count)
+    return number_record
+
+def compare_lists(list1,list2):
+    """Compare the two lists and return true if all the items in the shorter list appear in order at the start of the longer list"""
+    if len(list1) <= len(list2):
+        short_list = list1
+        long_list = list2
+    else:
+        short_list = list2
+        long_list = list1       
+    for index, item in enumerate(short_list):
+        if long_list[index] != item:
+            return False
+    return True
 
 
 def generate_combinations(arr, r):

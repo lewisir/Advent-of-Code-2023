@@ -5,6 +5,7 @@ https://adventofcode.com/2023/day/12
 """
 
 from time import perf_counter
+import itertools
 
 TEST = False
 
@@ -17,12 +18,13 @@ if TEST:
 else:
     FILENAME = REAL_INPUT
 
+INDENT = 4
 
 def main():
     """Main program"""
     data = get_input_data(FILENAME)
     result_list = []
-    """for line in data:
+    for line in data:
         alternative = 0
         spring_data, damaged_springs = line.split(" ")
         damaged_springs = damaged_springs.split(",")
@@ -40,10 +42,68 @@ def main():
         result_list.append(alternative)
     print(f"Part 1 - sum of alternatives = {sum(result_list)}")
     # Part I works but is slow (about 5 seconds)
-    """
+    
 
     # New approach is to work through the string section by section (delimited by groups of '#') and check as we go whether we're producing a string that will match the damaged spring summary data 
+    """
+    result_list_2 = []
+    for line in data:
+        spring_data, damaged_springs = line.split(" ")
+        damaged_springs = damaged_springs.split(",")
+        damaged_springs = [int(x) for x in damaged_springs]
+        result_list_2.append(permute_string(spring_data,0,damaged_springs))
+        #print(f"spring_data {spring_data}\ndamaged_springs {damaged_springs}\narrangements {alternate_count}")
+    print(f"Part I - Total Arrangements {sum(result_list_2)}")
 
+    for index,value in enumerate(result_list):
+        if value != result_list_2[index]:
+            print(f"Differences at index {index} list_1 {value} list_2 {result_list_2[index]}")
+
+    print(f"Testing Perumte Count = {permute_string('?.#.?..?#?.?',0,[1,1,1,1])}")
+    """
+
+def permute_string(spring_string, n, damaged_springs, perm_count=0, depth_count=0):
+    """calcualte the number of permissable combinations of the spring_string
+    get next string section
+    if we reached the end of the string then return a count of one
+    calcualte number of damaged springs
+    caluclate combinations
+    for each combination test whether it's valid
+        if it is then call this function again 
+        if it isn;t then stop
+    """
+    depth_count += 1
+    #print(f"{depth_count}"+" "*INDENT*depth_count+f"Permute Called with {spring_string} {n} {damaged_springs} {perm_count}")
+    if n == len(spring_string) and calculate_number_record(spring_string) == damaged_springs:
+        #print(f"{depth_count}"+" "*INDENT*depth_count+f"Here's a Possible Match {spring_string} and return 1 when perm_count is {perm_count}")
+        perm_count += 1
+        return perm_count
+    elif n == len(spring_string):
+        #print(f"{depth_count}"+" "*INDENT*depth_count+f"Return 0 when perm_count is {perm_count} if n == len(spring_string)")
+        return perm_count
+    next_section = extract_next_section(spring_string,n)
+    #print(f"{depth_count}"+" "*INDENT*depth_count+f"Next Section {next_section}")
+    n = len(next_section)
+    unknown_spring_locations = find_char_positions(next_section,"?")
+    possible_springs = min(sum(damaged_springs)-spring_string.count("#"),next_section.count("?"))
+    #print(f"{depth_count}"+" "*INDENT*depth_count+f"Unknown Locations {unknown_spring_locations} and number of springs {possible_springs}")
+    combinations = produce_combinations(unknown_spring_locations,possible_springs)
+    # print(f"{depth_count}"+" "*INDENT*depth_count+f"Potential locations {combinations}")
+    for possible in combinations:
+        new_string = create_spring_data(next_section,possible)
+        new_data = calculate_number_record(new_string)
+        #print(f"{depth_count}"+" "*INDENT*depth_count+f" Trying {possible} creates {new_string} with {new_data} while perm_count is {perm_count}")
+        if compare_lists(new_data,damaged_springs):
+            #print(f"{depth_count}"+" "*INDENT*depth_count+f"   Found successful possible {new_string} calling permute with and incrementing perm_count which is {perm_count}")
+            perm_count = permute_string(merge_strings(spring_string,new_string),n,damaged_springs, perm_count, depth_count)
+            #print(f"{depth_count}"+" "*INDENT*depth_count+f"   Just set perm_count to {perm_count} using new_ctring {new_string} having called permute")
+    #print(f"{depth_count}"+" "*INDENT*depth_count+f"Return perm_count {perm_count} at the end of for loop")
+    return perm_count
+
+
+def merge_strings(full_string, start_string):
+    """replace the start of the full_string with the start_string"""
+    return start_string+full_string[len(start_string):]
 
 def extract_next_section(spring_string, n):
     """
@@ -84,11 +144,20 @@ def compare_lists(list1,list2):
         long_list = list2
     else:
         short_list = list2
-        long_list = list1       
+        long_list = list1
     for index, item in enumerate(short_list):
         if long_list[index] != item:
             return False
     return True
+
+def produce_combinations(array,n):
+    """Return all the subsets of array that have 0 to n elements in them"""
+    output = []
+    for i in range(n+1):
+        combi = itertools.combinations(array,i)
+        for combination in combi:
+            output.append(combination)
+    return output
 
 
 def generate_combinations(arr, r):
@@ -107,7 +176,6 @@ def combination_util(arr, data, start, end, index, r, combinations):
         combination_util(arr, data, i + 1, end, index + 1, r, combinations)
         i += 1
     return combinations
-
 
 def find_char_positions(input_string, char):
     """return a list of the positions in the string where the char appears"""

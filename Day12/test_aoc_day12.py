@@ -19,6 +19,7 @@ def test_compare_lists():
 	assert aoc_day12.compare_lists([1,2,3],[2,2,3,4,5]) == False
 	assert aoc_day12.compare_lists([1,2,4],[1,2,3,4,5]) == False
 	assert aoc_day12.compare_lists([1,2,3,4,5,6],[1,6,3]) == False
+	assert aoc_day12.compare_lists([],[1,2]) == False
 
 def test_extract_next_section():
 	assert aoc_day12.extract_next_section('???.###',0) == '???.'
@@ -27,3 +28,20 @@ def test_extract_next_section():
 	assert aoc_day12.extract_next_section('.??..??...?##.',0) == '.??.'
 	assert aoc_day12.extract_next_section('.??..??...?##.',4) == '.??..??.'
 	assert aoc_day12.extract_next_section('.??..??...?##.',8) == '.??..??...?##.'
+
+def test_merge_strings():
+	assert aoc_day12.merge_strings('abcdefghi','12345') == '12345fghi'
+
+def test_permute_string():
+	assert aoc_day12.permute_string('???.###',0,[1,1,3]) == 1
+	assert aoc_day12.permute_string('.??..??...?##.',0,[1,1,3]) == 4
+	assert aoc_day12.permute_string('?#?#?#?#?#?#?#?',0,[1,3,1,6]) == 1
+	assert aoc_day12.permute_string('????.#...#...',0,[4,1,1]) == 1
+	assert aoc_day12.permute_string('????.######..#####.',0,[1,6,5]) == 4
+	assert aoc_day12.permute_string('?###????????',0,[3,2,1]) == 10
+	assert aoc_day12.permute_string('?.',0,[1]) == 1
+	assert aoc_day12.permute_string('.?',0,[1]) == 1
+	assert aoc_day12.permute_string('??',0,[1]) == 2
+	assert aoc_day12.permute_string('??',0,[2]) == 1
+	assert aoc_day12.permute_string('??',0,[2]) == 1
+

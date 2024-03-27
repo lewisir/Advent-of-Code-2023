@@ -63,15 +63,7 @@ def main():
     """
 
 def permute_string(spring_string, n, damaged_springs, perm_count=0, depth_count=0):
-    """calcualte the number of permissable combinations of the spring_string
-    get next string section
-    if we reached the end of the string then return a count of one
-    calcualte number of damaged springs
-    caluclate combinations
-    for each combination test whether it's valid
-        if it is then call this function again 
-        if it isn;t then stop
-    """
+    """calcualte the number of permissable combinations of the spring_string"""
     depth_count += 1
     #print(f"{depth_count}"+" "*INDENT*depth_count+f"Permute Called with {spring_string} {n} {damaged_springs} {perm_count}")
     if n == len(spring_string) and calculate_number_record(spring_string) == damaged_springs:

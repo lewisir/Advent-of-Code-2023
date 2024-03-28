@@ -22,9 +22,9 @@ INDENT = 4
 
 def main():
     """Main program"""
-    """
     data = get_input_data(FILENAME)
     result_list = []
+    # alternative = 0
     for line in data:
         alternative = 0
         spring_data, damaged_springs = line.split(" ")
@@ -41,9 +41,12 @@ def main():
             if get_damaged_springs(test_data) == damaged_springs:
                 alternative += 1
         result_list.append(alternative)
-    print(f"Part 1 - sum of alternatives = {sum(result_list)}")
+        # alternative += total_perms(spring_data, damaged_springs)
+    alternative = sum(result_list)
+    print(f"Part 1 - sum of alternatives = {alternative}")
     # Part I works but is slow (about 5 seconds)
-    """
+    # And if I call total_perms instead, it's even slower?????
+
 
     # New approach is to work through the string section by section (delimited by groups of '#') and check as we go whether we're producing a string that will match the damaged spring summary data 
     """
@@ -80,34 +83,23 @@ def total_perms(spring_string, damaged_springs):
     return count
 
 
-def permute_string(spring_string, n, damaged_springs, perm_count=0, depth_count=0):
+def permute_string(spring_string, n, damaged_springs, perm_count=0):
     """calcualte the number of permissable combinations of the spring_string"""
-    depth_count += 1
-    #print(f"{depth_count}"+" "*INDENT*depth_count+f"Permute Called with {spring_string} {n} {damaged_springs} {perm_count}")
     if n == len(spring_string) and calculate_number_record(spring_string) == damaged_springs:
-        #print(f"{depth_count}"+" "*INDENT*depth_count+f"Here's a Possible Match {spring_string} and return 1 when perm_count is {perm_count}")
         perm_count += 1
         return perm_count
     elif n == len(spring_string):
-        #print(f"{depth_count}"+" "*INDENT*depth_count+f"Return 0 when perm_count is {perm_count} if n == len(spring_string)")
         return perm_count
     next_section = extract_next_section(spring_string,n)
-    #print(f"{depth_count}"+" "*INDENT*depth_count+f"Next Section {next_section}")
     n = len(next_section)
     unknown_spring_locations = find_char_positions(next_section,"?")
     possible_springs = min(sum(damaged_springs)-spring_string.count("#"),next_section.count("?"))
-    #print(f"{depth_count}"+" "*INDENT*depth_count+f"Unknown Locations {unknown_spring_locations} and number of springs {possible_springs}")
     combinations = produce_combinations(unknown_spring_locations,possible_springs)
-    # print(f"{depth_count}"+" "*INDENT*depth_count+f"Potential locations {combinations}")
     for possible in combinations:
         new_string = create_spring_data(next_section,possible)
         new_data = calculate_number_record(new_string)
-        #print(f"{depth_count}"+" "*INDENT*depth_count+f" Trying {possible} creates {new_string} with {new_data} while perm_count is {perm_count}")
         if compare_lists(new_data,damaged_springs):
-            #print(f"{depth_count}"+" "*INDENT*depth_count+f"   Found successful possible {new_string} calling permute with and incrementing perm_count which is {perm_count}")
-            perm_count = permute_string(merge_strings(spring_string,new_string),n,damaged_springs, perm_count, depth_count)
-            #print(f"{depth_count}"+" "*INDENT*depth_count+f"   Just set perm_count to {perm_count} using new_ctring {new_string} having called permute")
-    #print(f"{depth_count}"+" "*INDENT*depth_count+f"Return perm_count {perm_count} at the end of for loop")
+            perm_count = permute_string(merge_strings(spring_string,new_string),n,damaged_springs, perm_count)
     return perm_count
 
 

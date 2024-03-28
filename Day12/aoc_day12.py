@@ -22,6 +22,7 @@ INDENT = 4
 
 def main():
     """Main program"""
+    """
     data = get_input_data(FILENAME)
     result_list = []
     for line in data:
@@ -42,7 +43,7 @@ def main():
         result_list.append(alternative)
     print(f"Part 1 - sum of alternatives = {sum(result_list)}")
     # Part I works but is slow (about 5 seconds)
-    
+    """
 
     # New approach is to work through the string section by section (delimited by groups of '#') and check as we go whether we're producing a string that will match the damaged spring summary data 
     """
@@ -61,6 +62,23 @@ def main():
 
     print(f"Testing Perumte Count = {permute_string('?.#.?..?#?.?',0,[1,1,1,1])}")
     """
+    # print(f"first method with '.??..??...?##.' Count = {total_perms('.??..??...?##.',[1,1,3])}")
+    # print(f"secnd method with '.??..??...?##.' Count = {permute_string('.??..??...?##.',0,[1,1,3])}")
+    # print(f"first method with '.??..??...?##...??..??...?##...??..??...?##...??..??...?##.' Count = {total_perms('.??..??...?##...??..??...?##...??..??...?##...??..??...?##.',[1,1,3,1,1,3,1,1,3,1,1,3])}")
+    # print(f"secnd method with '.??..??...?##...??..??...?##...??..??...?##...??..??...?##.' Count = {permute_string('.??..??...?##...??..??...?##...??..??...?##...??..??...?##.',0,[1,1,3,1,1,3,1,1,3,1,1,3])}")
+
+
+def total_perms(spring_string, damaged_springs):
+    """caclulate the number of permissable combinations of the spring_string"""
+    count = 0
+    unknown_spring_locations = find_char_positions(spring_string, "?")
+    possible_damaged_springs = produce_combinations(unknown_spring_locations,sum(damaged_springs) - spring_string.count("#"))
+    for possible in possible_damaged_springs:
+        test_string = create_spring_data(spring_string,possible)
+        if get_damaged_springs(test_string) == damaged_springs:
+            count += 1
+    return count
+
 
 def permute_string(spring_string, n, damaged_springs, perm_count=0, depth_count=0):
     """calcualte the number of permissable combinations of the spring_string"""

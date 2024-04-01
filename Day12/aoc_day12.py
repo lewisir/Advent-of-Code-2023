@@ -7,7 +7,7 @@ https://adventofcode.com/2023/day/12
 from time import perf_counter
 import itertools
 
-TEST = False
+TEST = True
 
 DAY = "12"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -19,6 +19,8 @@ else:
     FILENAME = REAL_INPUT
 
 INDENT = 4
+
+MULTIPLIER = 1
 
 def main():
     """Main program"""
@@ -46,29 +48,27 @@ def main():
     print(f"Part 1 - sum of alternatives = {alternative}")
     # Part I works but is slow (about 5 seconds)
     # And if I call total_perms instead, it's even slower?????
-
-
     # New approach is to work through the string section by section (delimited by groups of '#') and check as we go whether we're producing a string that will match the damaged spring summary data 
-    """
-    result_list_2 = []
-    for line in data:
-        spring_data, damaged_springs = line.split(" ")
-        damaged_springs = damaged_springs.split(",")
-        damaged_springs = [int(x) for x in damaged_springs]
-        result_list_2.append(permute_string(spring_data,0,damaged_springs))
-        #print(f"spring_data {spring_data}\ndamaged_springs {damaged_springs}\narrangements {alternate_count}")
-    print(f"Part I - Total Arrangements {sum(result_list_2)}")
-
-    for index,value in enumerate(result_list):
-        if value != result_list_2[index]:
-            print(f"Differences at index {index} list_1 {value} list_2 {result_list_2[index]}")
-
-    print(f"Testing Perumte Count = {permute_string('?.#.?..?#?.?',0,[1,1,1,1])}")
-    """
+    # print(f"Testing Perumte Count = {permute_string('?.#.?..?#?.?',0,[1,1,1,1])}")
     # print(f"first method with '.??..??...?##.' Count = {total_perms('.??..??...?##.',[1,1,3])}")
     # print(f"secnd method with '.??..??...?##.' Count = {permute_string('.??..??...?##.',0,[1,1,3])}")
     # print(f"first method with '.??..??...?##...??..??...?##...??..??...?##...??..??...?##.' Count = {total_perms('.??..??...?##...??..??...?##...??..??...?##...??..??...?##.',[1,1,3,1,1,3,1,1,3,1,1,3])}")
     # print(f"secnd method with '.??..??...?##...??..??...?##...??..??...?##...??..??...?##.' Count = {permute_string('.??..??...?##...??..??...?##...??..??...?##...??..??...?##.',0,[1,1,3,1,1,3,1,1,3,1,1,3])}")
+
+    """
+    count = 0
+    for line in data:
+        spring_data, damaged_springs = line.split(" ")
+        damaged_springs = damaged_springs.split(",")
+        damaged_springs = [int(x) for x in damaged_springs]
+        spring_data = grow_string(spring_data,MULTIPLIER)
+        damaged_springs = damaged_springs * MULTIPLIER
+        print(f"working {spring_data} with {damaged_springs}")
+        count += permute_string(spring_data,0,damaged_springs)
+        print(f"Running count {count}")
+    """
+
+    print(f"Permute '.??..??...?##.' [1,1,3] gives {permute_string('.??..??...?##.',0,[1,1,3])} permutations")
 
 
 def total_perms(spring_string, damaged_springs):
@@ -119,7 +119,7 @@ def extract_next_section(spring_string, n):
         output_string += char
         if char == '?':
             found_unknown = True
-        elif char == '.' and found_unknown == True:
+        elif char != '?' and found_unknown == True:
             return output_string
     return output_string
 
@@ -215,6 +215,13 @@ def create_spring_data(input_string, positions):
             output_string += "#"
         else:
             output_string += "."
+    return output_string
+
+def grow_string(input_string,n,separator='?'):
+    """return the input_string n times with each occurance separated by the separator"""
+    output_string = input_string
+    for _ in range(n-1):
+        output_string += separator + input_string
     return output_string
 
 

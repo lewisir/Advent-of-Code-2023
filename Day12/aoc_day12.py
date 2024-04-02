@@ -68,7 +68,9 @@ def main():
         print(f"Running count {count}")
     """
 
-    print(f"Permute '.??..??...?##.' [1,1,3] gives {permute_string('.??..??...?##.',0,[1,1,3])} permutations")
+    # print(f"Permute '?#?#?#?#?#?#?#?' [1,3,1,6] gives {permute_string('?#?#?#?#?#?#?#?',0,[1,3,1,6])} permutations")
+    # print(f"Permute '?#?#' [3] gives {permute_string('?#?#',0,[3])} permutations")
+    print(f"Extract '?#?#' {extract_next_section('?#?#',0)}")
 
 
 def total_perms(spring_string, damaged_springs):
@@ -86,14 +88,17 @@ def total_perms(spring_string, damaged_springs):
 def permute_string(spring_string, n, damaged_springs, perm_count=0):
     """calcualte the number of permissable combinations of the spring_string"""
     if n == len(spring_string) and calculate_number_record(spring_string) == damaged_springs:
+        print(f"incrementing perm_count by 1 from {perm_count}")
         perm_count += 1
         return perm_count
     elif n == len(spring_string):
+        print(f"returning perm_count {perm_count} as n == len(spring_string)")
         return perm_count
     next_section = extract_next_section(spring_string,n)
     n = len(next_section)
     unknown_spring_locations = find_char_positions(next_section,"?")
     possible_springs = min(sum(damaged_springs)-spring_string.count("#"),next_section.count("?"))
+    print(f"Data\n\tnext_section\t{next_section}\n\tunknown_spring_locations\t{unknown_spring_locations}\n\tpossible_springs\t{possible_springs}")
     combinations = produce_combinations(unknown_spring_locations,possible_springs)
     for possible in combinations:
         new_string = create_spring_data(next_section,possible)
@@ -111,17 +116,31 @@ def extract_next_section(spring_string, n):
     """
     Starting at index position n, extract the next section of the spring_string up to include the next contiguous block of '?'
     unless the end of the string is reached in which case return the whole string
+    include any contiguous blocks of '#' that are adjacent to the block of '?'
     """
     output_string = spring_string[:n]
     found_unknown = False
+    found_hash = False
     for i in range(n,len(spring_string)):
         char = spring_string[i]
         output_string += char
         if char == '?':
             found_unknown = True
-        elif char != '?' and found_unknown == True:
+            print(f"found_unknown at {i} '{spring_string[i]}' found_unknown = {found_unknown}")
+            if found_hash:
+                print(f"     also found_hash = {found_hash} and returning '{output_string}'")
+                return output_string
+                # return spring_string[:n+i]
+        elif char == '#' and found_unknown:
+            print(f"found_hash at {i} '{spring_string[i]}' found_hash = {found_hash}")
+            found_hash = True
+        elif char == '.' and found_unknown:
+            print(f"found '.' at {i} '{spring_string[i]}' and returning '{output_string}")
             return output_string
+            # return spring_string[:n+i]
+    print(f"reached end and returning '{output_string}")
     return output_string
+    #return spring_string[:n+i]
 
 
 

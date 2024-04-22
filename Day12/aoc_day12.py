@@ -6,8 +6,10 @@ https://adventofcode.com/2023/day/12
 
 from time import perf_counter
 import itertools
+import sys
+import pprint
 
-TEST = True
+TEST = False
 
 DAY = "12"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -20,13 +22,16 @@ else:
 
 INDENT = 4
 
-MULTIPLIER = 1
+MULTIPLIER = 2
+
+MEMO = {}
 
 def main():
     """Main program"""
     data = get_input_data(FILENAME)
     result_list = []
     # alternative = 0
+    """
     for line in data:
         alternative = 0
         spring_data, damaged_springs = line.split(" ")
@@ -46,6 +51,7 @@ def main():
         # alternative += total_perms(spring_data, damaged_springs)
     alternative = sum(result_list)
     print(f"Part 1 - sum of alternatives = {alternative}")
+    """
     # Part I works but is slow (about 5 seconds)
     # And if I call total_perms instead, it's even slower?????
     # New approach is to work through the string section by section (delimited by groups of '#') and check as we go whether we're producing a string that will match the damaged spring summary data 
@@ -70,7 +76,50 @@ def main():
 
     # print(f"Permute '?#?#?#?#?#?#?#?' [1,3,1,6] gives {permute_string('?#?#?#?#?#?#?#?',0,[1,3,1,6])} permutations")
     # print(f"Permute '?#?#' [3] gives {permute_string('?#?#',0,[3])} permutations")
-    print(f"Extract '?#?#' {extract_next_section('?#?#',0)}")
+    # print(f"Extract '?#?#' {extract_next_section('?#?#',0)}")
+
+    #count = perm_string('?#?#?#?#?#?#?#?',[1,3,1,6])
+    #print(f"Counting Perms of '?#?#?#?#?#?#?#?' [1,3,1,6] = {count}")
+
+    count = 0
+    
+    for line in data:
+        spring_data, damaged_springs = line.split(" ")
+        spring_data = trim_dots(spring_data)
+        damaged_springs = damaged_springs.split(",")
+        damaged_springs = [int(x) for x in damaged_springs]
+        spring_data = grow_string(spring_data,MULTIPLIER)
+        damaged_springs = damaged_springs * MULTIPLIER
+        count += perm_string(spring_data,damaged_springs)
+
+    print(f"Valid Alternatives = {count}")
+    pprint.pprint(MEMO)
+   
+
+def perm_string(input_string,damaged_data,count=0):
+    """recursively find all the possible spring arrangements"""
+    #if MEMO.get((input_string,str(damaged_data))):
+    #    return MEMO[(input_string,str(damaged_data))]
+    #else:
+    if input_string.find("?") > -1:
+        next_section = input_string[:input_string.find('?')+1]
+        temp_damaged_data = calculate_number_record(next_section[:-1])
+        # print(f"Debug:\tInput:\t{input_string}\tData:\t{damaged_data}\n\tNext:\t{next_section}\tTemp:\t{temp_damaged_data}")
+        if compare_lists(temp_damaged_data,damaged_data):
+            # print(f"  Debug: Call with {"."+input_string[len(next_section):]} and {subtract_list(damaged_data,temp_damaged_data)}")
+            count = perm_string(trim_dots("."+input_string[len(next_section):]),subtract_list(damaged_data,temp_damaged_data),count)
+#            MEMO[(input_string,str(damaged_data))] = count
+        if input_string.count('#') >= sum(damaged_data):
+            return count
+        else:
+            count = perm_string(merge_strings(input_string,next_section[:-1]+"#"),damaged_data,count)
+#            MEMO[(input_string,str(damaged_data))] = count
+    else:
+        if calculate_number_record(input_string) == damaged_data:
+            count += 1
+        return count
+    return count
+
 
 
 def total_perms(spring_string, damaged_springs):
@@ -88,17 +137,17 @@ def total_perms(spring_string, damaged_springs):
 def permute_string(spring_string, n, damaged_springs, perm_count=0):
     """calcualte the number of permissable combinations of the spring_string"""
     if n == len(spring_string) and calculate_number_record(spring_string) == damaged_springs:
-        print(f"incrementing perm_count by 1 from {perm_count}")
+        #print(f"incrementing perm_count by 1 from {perm_count}")
         perm_count += 1
         return perm_count
     elif n == len(spring_string):
-        print(f"returning perm_count {perm_count} as n == len(spring_string)")
+        #print(f"returning perm_count {perm_count} as n == len(spring_string)")
         return perm_count
     next_section = extract_next_section(spring_string,n)
     n = len(next_section)
     unknown_spring_locations = find_char_positions(next_section,"?")
     possible_springs = min(sum(damaged_springs)-spring_string.count("#"),next_section.count("?"))
-    print(f"Data\n\tnext_section\t{next_section}\n\tunknown_spring_locations\t{unknown_spring_locations}\n\tpossible_springs\t{possible_springs}")
+    #print(f"Data\n\tnext_section\t{next_section}\n\tunknown_spring_locations\t{unknown_spring_locations}\n\tpossible_springs\t{possible_springs}")
     combinations = produce_combinations(unknown_spring_locations,possible_springs)
     for possible in combinations:
         new_string = create_spring_data(next_section,possible)
@@ -107,6 +156,44 @@ def permute_string(spring_string, n, damaged_springs, perm_count=0):
             perm_count = permute_string(merge_strings(spring_string,new_string),n,damaged_springs, perm_count)
     return perm_count
 
+def trim_dots(spring_string):
+    """
+    Remove consecutice sequences of '.' from the string, reducing them to a single '.'
+    Also remove leading or trailing '.'
+    """
+    output_string = ''
+    found_dot = False
+    for char in spring_string:
+        if char != '.':
+            output_string += char
+            found_dot = False
+        elif char == '.' and not found_dot:
+            output_string += char
+            found_dot = True
+    output_string = remove_end_dots(output_string)
+    return output_string
+
+def remove_end_dots(spring_string):
+    """Remove any leading or trailing dots"""
+    if spring_string[0] == '.':
+        start = 1
+    else:
+        start = 0
+    if spring_string[-1] == '.':
+        end = -1
+    else:
+        end = None
+    return spring_string[start:end]
+
+
+def subtract_list(list1, list2):
+    """return a list that is the result of removing the items in list 2 from the the items in list1 where list 2 is euqal to the start of list1"""
+    if len(list1) < len(list2):
+        return None
+    elif list1[:len(list2)] != list2:
+        return None
+    else:
+        return list1[len(list2):]
 
 def merge_strings(full_string, start_string):
     """replace the start of the full_string with the start_string"""
@@ -126,19 +213,19 @@ def extract_next_section(spring_string, n):
         output_string += char
         if char == '?':
             found_unknown = True
-            print(f"found_unknown at {i} '{spring_string[i]}' found_unknown = {found_unknown}")
+            #print(f"found_unknown at {i} '{spring_string[i]}' found_unknown = {found_unknown}")
             if found_hash:
                 print(f"     also found_hash = {found_hash} and returning '{output_string}'")
                 return output_string
                 # return spring_string[:n+i]
         elif char == '#' and found_unknown:
-            print(f"found_hash at {i} '{spring_string[i]}' found_hash = {found_hash}")
+            #print(f"found_hash at {i} '{spring_string[i]}' found_hash = {found_hash}")
             found_hash = True
         elif char == '.' and found_unknown:
-            print(f"found '.' at {i} '{spring_string[i]}' and returning '{output_string}")
+            #print(f"found '.' at {i} '{spring_string[i]}' and returning '{output_string}")
             return output_string
             # return spring_string[:n+i]
-    print(f"reached end and returning '{output_string}")
+    #print(f"reached end and returning '{output_string}")
     return output_string
     #return spring_string[:n+i]
 
@@ -160,6 +247,9 @@ def calculate_number_record(spring_string):
 
 def compare_lists(list1,list2):
     """Compare the two lists and return true if all the items in the shorter list appear in order at the start of the longer list"""
+    if list1 is None or list2 is None:
+        print(f"List error {list1} {list2}")
+        sys.exit()
     if len(list1) <= len(list2):
         short_list = list1
         long_list = list2

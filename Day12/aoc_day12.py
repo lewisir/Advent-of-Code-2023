@@ -18,6 +18,8 @@ else:
     FILENAME = REAL_INPUT
 
 MULTIPLIER = 1
+MEMO = {}
+MEMOIZE = True
 
 
 def main():
@@ -28,32 +30,46 @@ def main():
         spring_string, damaged_data = line.split(" ")
         damaged_data = damaged_data.split(",")
         damaged_data = tuple([int(x) for x in damaged_data])
+        # spring_string = reduce_dots(spring_string)
         spring_string = grow_string(spring_string, MULTIPLIER)
         damaged_data = damaged_data * MULTIPLIER
         count += permute_string(spring_string, damaged_data)
     print(f"Count = {count}")
 
-    # Odd, but if I pass in a list rather than a tuple I get a wrong answer in some cases - permute_string("????.#...#...", [4, 1, 1]) != 1 !!!
+    # Odd, but if I pass in a list rather than a tuple I get a wrong answer in some cases
+    # try permute_string("????.#...#...", [4, 1, 1]) gives result 0 rather than 1
 
 
 def permute_string(input_string, damaged_data, count=0):
     """Recursively calculate the number of permutation of the given string and damaged spring data"""
-    if input_string.find("?") > -1:
-        next_section = input_string[: input_string.find("?")]
-        next_section_damaged_data = calculate_damaged_spring_data(next_section)
-        if match_sequences(next_section_damaged_data, damaged_data):
-            # The start of the input string is good so pass the remaining part of the string to permute_string
-            remaining_string = input_string[input_string.find("?") + 1 :]
-            remaining_damaged_data = subtract_sequences(
-                damaged_data, next_section_damaged_data
-            )
-            count = permute_string(remaining_string, remaining_damaged_data, count)
-        # check if there are enough '?' for the remaining '#' and if there are then pass the input_string with the first '?' replaced with '#' to permute_string
-        if input_string.count("?") >= sum(damaged_data) - input_string.count("#"):
-            next_string = (
-                next_section + "#" + input_string[input_string.find("?") + 1 :]
-            )
-            count = permute_string(next_string, damaged_data, count)
+    next_qm = input_string.find("?")
+    # If there is a '?' then work out if we can replace with it '.' and/or '#'
+    if next_qm > -1:
+        first_section = input_string[:next_qm]
+        second_section = input_string[next_qm + 1 :]
+        first_section_damaged_data = calculate_damaged_spring_data(first_section)
+        remaining_damaged_data = subtract_sequences(
+            damaged_data, first_section_damaged_data
+        )
+        qm_credit = (
+            input_string.count("?") - sum(damaged_data) + input_string.count("#")
+        )
+        # always check if there are enough '?' for the remaining '#' (qm_credt >= 0)
+        # check if the start of the input string is 'good' and if so replace '?' with '.' and pass to permute_string
+        if match_sequences(first_section_damaged_data, damaged_data) and qm_credit >= 0:
+            if MEMOIZE and (second_section, remaining_damaged_data) in MEMO.keys():
+                count += MEMO[(second_section, remaining_damaged_data)]
+            else:
+                new_string = first_section + "." + second_section
+                old_count = count
+                count = permute_string(new_string, damaged_data, count)
+                if MEMOIZE:
+                    MEMO[(second_section, remaining_damaged_data)] = count - old_count
+        # replace '?' with '#' and pass to permute_string
+        if qm_credit >= 0:
+            new_string = first_section + "#" + second_section
+            count = permute_string(new_string, damaged_data, count)
+    # If there's no '?' test whether we have a valid string
     else:
         if calculate_damaged_spring_data(input_string) == damaged_data:
             count += 1
@@ -100,6 +116,20 @@ def grow_string(input_string, n, separator="?"):
     for _ in range(n - 1):
         output_string += separator + input_string
     return output_string
+
+
+def reduce_dots(input_string):
+    """Redcue consecutive sequences of '.' to a single '.' and return the string"""
+    ouput_string = ""
+    found_dot = False
+    for c in input_string:
+        if c == "." and found_dot == False:
+            found_dot = True
+            ouput_string += c
+        elif c != ".":
+            found_dot = False
+            ouput_string += c
+    return ouput_string
 
 
 def get_input_data(filename):

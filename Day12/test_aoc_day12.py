@@ -33,6 +33,14 @@ def test_subtract_sequences():
     assert aoc_day12.subtract_sequences((1, 8, 3), (1, 2, 3, 4)) == None
 
 
+def test_reduce_dots():
+    assert aoc_day12.reduce_dots(".#.#.?.#.#.?.") == ".#.#.?.#.#.?."
+    assert aoc_day12.reduce_dots("..#.#.?.#.#.?.") == ".#.#.?.#.#.?."
+    assert aoc_day12.reduce_dots(".#.#.?.#.#.?..") == ".#.#.?.#.#.?."
+    assert aoc_day12.reduce_dots(".#.#.?...#.#.?.") == ".#.#.?.#.#.?."
+    assert aoc_day12.reduce_dots(".#....#.?.#.#....?.") == ".#.#.?.#.#.?."
+
+
 def test_permute_string():
     assert aoc_day12.permute_string("???.###", (1, 1, 3)) == 1
     assert aoc_day12.permute_string(".??..??...?##.", (1, 1, 3)) == 4

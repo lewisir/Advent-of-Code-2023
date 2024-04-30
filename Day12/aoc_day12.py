@@ -19,7 +19,7 @@ else:
 
 MULTIPLIER = 1
 MEMO = {}
-MEMOIZE = True
+MEMOIZE = False
 
 
 def main():
@@ -30,7 +30,6 @@ def main():
         spring_string, damaged_data = line.split(" ")
         damaged_data = damaged_data.split(",")
         damaged_data = tuple([int(x) for x in damaged_data])
-        # spring_string = reduce_dots(spring_string)
         spring_string = grow_string(spring_string, MULTIPLIER)
         damaged_data = damaged_data * MULTIPLIER
         count += permute_string(spring_string, damaged_data)

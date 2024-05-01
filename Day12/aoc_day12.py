@@ -25,6 +25,15 @@ MEMOIZE = False
 def main():
     """Main program"""
     data = get_input_data(FILENAME)
+    # calculate(data)
+    compare(data)
+
+    # Odd, but if I pass in a list rather than a tuple to permute_string I get a wrong answer in some cases
+    # try permute_string("????.#...#...", [4, 1, 1]) gives result 0 rather than 1
+
+
+def calculate(data):
+    """Calculate the total number of variations"""
     count = 0
     for line in data:
         spring_string, damaged_data = line.split(" ")
@@ -32,11 +41,23 @@ def main():
         damaged_data = tuple([int(x) for x in damaged_data])
         spring_string = grow_string(spring_string, MULTIPLIER)
         damaged_data = damaged_data * MULTIPLIER
-        count += permute_string(spring_string, damaged_data)
+        count += short_perm_string(spring_string, damaged_data)
     print(f"Count = {count}")
 
-    # Odd, but if I pass in a list rather than a tuple I get a wrong answer in some cases
-    # try permute_string("????.#...#...", [4, 1, 1]) gives result 0 rather than 1
+
+def compare(data):
+    """Output the comparative counts of the two permute functions"""
+    print(f"String\tData\tShort_Perm\tPermute")
+    for line in data:
+        spring_string, damaged_data = line.split(" ")
+        damaged_data = damaged_data.split(",")
+        damaged_data = tuple([int(x) for x in damaged_data])
+        spring_string = grow_string(spring_string, MULTIPLIER)
+        damaged_data = damaged_data * MULTIPLIER
+        short = short_perm_string(spring_string, damaged_data)
+        long = permute_string(spring_string, damaged_data)
+        if short != long:
+            print(f"{spring_string}\t{damaged_data}\t{short}\t{long}")
 
 
 def permute_string(input_string, damaged_data, count=0):
@@ -69,6 +90,30 @@ def permute_string(input_string, damaged_data, count=0):
             new_string = first_section + "#" + second_section
             count = permute_string(new_string, damaged_data, count)
     # If there's no '?' test whether we have a valid string
+    else:
+        if calculate_damaged_spring_data(input_string) == damaged_data:
+            count += 1
+    return count
+
+
+def short_perm_string(input_string, damaged_data, count=0):
+    """Recursively calculate the number of perumtations of the given string and damaged spring data"""
+    next_qm = input_string.find("?")
+    if next_qm > -1:
+        first_section = input_string[:next_qm]
+        second_section = input_string[next_qm + 1 :]
+        first_section_damaged_data = calculate_damaged_spring_data(first_section)
+        remaining_damaged_data = subtract_sequences(
+            damaged_data, first_section_damaged_data
+        )
+        qm_credit = (
+            input_string.count("?") - sum(damaged_data) + input_string.count("#")
+        )
+        if match_sequences(first_section_damaged_data, damaged_data) and qm_credit >= 0:
+            count = short_perm_string(second_section, remaining_damaged_data, count)
+        if qm_credit >= 0:
+            new_string = first_section + "#" + second_section
+            count = short_perm_string(new_string, damaged_data, count)
     else:
         if calculate_damaged_spring_data(input_string) == damaged_data:
             count += 1

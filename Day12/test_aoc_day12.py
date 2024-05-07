@@ -52,3 +52,16 @@ def test_permute_string():
     assert aoc_day12.permute_string(".?", (1,)) == 1
     assert aoc_day12.permute_string("??", (1,)) == 2
     assert aoc_day12.permute_string("??", (2,)) == 1
+
+
+def test_short_perm_string():
+    assert aoc_day12.short_perm_string("???.###", (1, 1, 3)) == 1
+    assert aoc_day12.short_perm_string(".??..??...?##.", (1, 1, 3)) == 4
+    assert aoc_day12.short_perm_string("????.#...#...", (4, 1, 1)) == 1
+    assert aoc_day12.short_perm_string("????.######..#####.", (1, 6, 5)) == 4
+    assert aoc_day12.short_perm_string("?###????????", (3, 2, 1)) == 10
+    assert aoc_day12.short_perm_string("?#?#?#?#?#?#?#?", (1, 3, 1, 6)) == 1
+    assert aoc_day12.short_perm_string("?.", (1,)) == 1
+    assert aoc_day12.short_perm_string(".?", (1,)) == 1
+    assert aoc_day12.short_perm_string("??", (1,)) == 2
+    assert aoc_day12.short_perm_string("??", (2,)) == 1

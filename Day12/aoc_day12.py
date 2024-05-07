@@ -5,8 +5,9 @@ https://adventofcode.com/2023/day/12
 """
 
 from time import perf_counter
+import sys
 
-TEST = False
+TEST = True
 
 DAY = "12"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -26,7 +27,9 @@ def main():
     """Main program"""
     data = get_input_data(FILENAME)
     # calculate(data)
-    compare(data)
+    # compare(data)
+    # short_perm_string("????#??.#????", (4, 1, 1))
+    print(f"Short Perm Test - {short_perm_string('??#??.#????', (3, 1, 1))}")
 
     # Odd, but if I pass in a list rather than a tuple to permute_string I get a wrong answer in some cases
     # try permute_string("????.#...#...", [4, 1, 1]) gives result 0 rather than 1
@@ -58,6 +61,7 @@ def compare(data):
         long = permute_string(spring_string, damaged_data)
         if short != long:
             print(f"{spring_string}\t{damaged_data}\t{short}\t{long}")
+            sys.exit()
 
 
 def permute_string(input_string, damaged_data, count=0):

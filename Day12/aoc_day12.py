@@ -7,7 +7,7 @@ https://adventofcode.com/2023/day/12
 from time import perf_counter
 import sys
 
-TEST = True
+TEST = False
 
 DAY = "12"
 REAL_INPUT = "Advent-of-Code-2023/Day" + DAY + "/input_day" + DAY + ".txt"
@@ -18,21 +18,23 @@ if TEST:
 else:
     FILENAME = REAL_INPUT
 
-MULTIPLIER = 1
+MULTIPLIER = 5
 MEMO = {}
-MEMOIZE = False
+MEMOIZE_STATE = True
 
 
 def main():
     """Main program"""
     data = get_input_data(FILENAME)
-    # calculate(data)
-    # compare(data)
-    # short_perm_string("????#??.#????", (4, 1, 1))
-    print(f"Short Perm Test - {short_perm_string('??#??.#????', (3, 1, 1))}")
+    calculate(data)
 
     # Odd, but if I pass in a list rather than a tuple to permute_string I get a wrong answer in some cases
     # try permute_string("????.#...#...", [4, 1, 1]) gives result 0 rather than 1
+    # print(f'{permute_string("????.#...#...", [4, 1, 1])}')
+    # print(f'{permute_string("????.#...#...", (4, 1, 1))}')
+
+    # Using permute_string without Memoisation works for part I. but with Memoisation it doesn't work
+    # short_perm_string gives the wrong result for part I
 
 
 def calculate(data):
@@ -44,7 +46,10 @@ def calculate(data):
         damaged_data = tuple([int(x) for x in damaged_data])
         spring_string = grow_string(spring_string, MULTIPLIER)
         damaged_data = damaged_data * MULTIPLIER
-        count += short_perm_string(spring_string, damaged_data)
+        count += permute_string(
+            spring_string, damaged_data, count=0, memoize=MEMOIZE_STATE
+        )
+        # print(f"{spring_string} {damaged_data} Running Count = {count}")
     print(f"Count = {count}")
 
 
@@ -64,11 +69,14 @@ def compare(data):
             sys.exit()
 
 
-def permute_string(input_string, damaged_data, count=0):
+def permute_string(input_string, damaged_data, count=0, memoize=False):
     """Recursively calculate the number of permutation of the given string and damaged spring data"""
+    # print(f"Permute Called with {(input_string, damaged_data, count)}")
+    if input_string == ".#.#.#??":
+        print(f"Found {input_string}")
     next_qm = input_string.find("?")
-    # If there is a '?' then work out if we can replace with it '.' and/or '#'
     if next_qm > -1:
+        # If there is a '?' then work out if we can replace with it '.' and/or '#'
         first_section = input_string[:next_qm]
         second_section = input_string[next_qm + 1 :]
         first_section_damaged_data = calculate_damaged_spring_data(first_section)
@@ -81,20 +89,24 @@ def permute_string(input_string, damaged_data, count=0):
         # always check if there are enough '?' for the remaining '#' (qm_credt >= 0)
         # check if the start of the input string is 'good' and if so replace '?' with '.' and pass to permute_string
         if match_sequences(first_section_damaged_data, damaged_data) and qm_credit >= 0:
-            if MEMOIZE and (second_section, remaining_damaged_data) in MEMO.keys():
+            if memoize and (second_section, remaining_damaged_data) in MEMO.keys():
+                # print(f"Found Memo {(second_section, remaining_damaged_data)}")
                 count += MEMO[(second_section, remaining_damaged_data)]
             else:
                 new_string = first_section + "." + second_section
                 old_count = count
-                count = permute_string(new_string, damaged_data, count)
-                if MEMOIZE:
+                count = permute_string(new_string, damaged_data, count, memoize)
+                if memoize:
                     MEMO[(second_section, remaining_damaged_data)] = count - old_count
+                    # print(
+                    #     f"{(second_section, remaining_damaged_data)} : {count - old_count}"
+                    # )
         # replace '?' with '#' and pass to permute_string
         if qm_credit >= 0:
             new_string = first_section + "#" + second_section
-            count = permute_string(new_string, damaged_data, count)
-    # If there's no '?' test whether we have a valid string
+            count = permute_string(new_string, damaged_data, count, memoize)
     else:
+        # If there's no '?' test whether we have a valid string
         if calculate_damaged_spring_data(input_string) == damaged_data:
             count += 1
     return count
@@ -148,11 +160,9 @@ def match_sequences(sequence_1, sequence_2):
 
 
 def subtract_sequences(sequence_1, sequence_2):
-    """return a tuple of the remaining items in the longer sequence once the items from the short sequence have been removed"""
+    """return a tuple of the remaining items after subtracting sequence_2 away from sequence_1"""
     if match_sequences(sequence_1, sequence_2):
-        if len(sequence_1) < len(sequence_2):
-            return tuple(sequence_2[len(sequence_1) :])
-        else:
+        if len(sequence_1) >= len(sequence_2):
             return tuple(sequence_1[len(sequence_2) :])
     else:
         return None

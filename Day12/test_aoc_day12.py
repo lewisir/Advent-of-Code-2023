@@ -65,3 +65,10 @@ def test_short_perm_string():
     assert aoc_day12.short_perm_string(".?", (1,)) == 1
     assert aoc_day12.short_perm_string("??", (1,)) == 2
     assert aoc_day12.short_perm_string("??", (2,)) == 1
+
+
+def test_permute_string_memo():
+    assert aoc_day12.permute_string("???.###", (1, 1, 3), 0, False) == 1
+    assert aoc_day12.permute_string("???.###", (1, 1, 3), 0, True) == 1
+    assert aoc_day12.permute_string("???.###", (1, 1), 0, False) == 1
+    assert aoc_day12.permute_string("???.###", (1, 1), 0, True) == 1

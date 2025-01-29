@@ -1,6 +1,6 @@
 """
 --- Advent of Code 2023 ---
---- Day 17: _______________ ---
+--- Day 17: Clumsy Crucible ---
 https://adventofcode.com/2023/day/17
 """
 
@@ -91,7 +91,7 @@ def a_star(map, start, goal):
 
 
 def spf(map, start, goal=None):
-    """Run SPF and return a disctionay of the paths form the start to all destiantions"""
+    """Run SPF and return a dictionary of the paths form the start to all destinations"""
     next_nodes = []
     heapq.heappush(next_nodes, (0, start))
     path_dict = {start: None}
